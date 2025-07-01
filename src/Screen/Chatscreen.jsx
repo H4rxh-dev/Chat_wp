@@ -8,20 +8,21 @@ import { generateChatId } from '../util/chatid'; // Make sure this works
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Toast from 'react-native-toast-message';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { useBlock } from '../Context/Blockcontext';
 
 
 const ChatScreen = ({ route, navigation }) => {
   const { user } = route.params;
   const currentUser = auth().currentUser;
   const chatId = generateChatId(currentUser.uid, user.id);
-
+const { blockUser, unblockUser ,isBlocked,setIsBlocked} = useBlock();
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState([]);
     const [showModal, setShowModal] = useState(false);
    const [visible, setVisible] = useState(false);
   const toggleModal = () => setVisible(!visible);
     const targetUserId = user.id;  // 👈 Th
-  const [isBlocked, setIsBlocked] = useState(false);
+  // const [isBlocked, setIsBlocked] = useState(false);
   const [loadingBlockStatus, setLoadingBlockStatus] = useState(true);
 
   useEffect(() => {
@@ -152,42 +153,55 @@ const deleteMessage = async (messageId) => {
 };
 
 
-const blockUser = async (targetUserId) => {
-  const currentUserId = auth().currentUser.uid;
 
-  try {
-    await firestore()
-      .collection('users')
-      .doc(currentUserId)
-      .collection('blockedUsers')
-      .doc(targetUserId)
-      .set({ blockedAt: firestore.FieldValue.serverTimestamp() });
- setIsBlocked(true); // 👈 U
-    Toast.show({ type: 'success', text1: 'User Blocked' });
-  } catch (err) {
-    console.error('Error blocking user:', err);
-    Toast.show({ type: 'error', text1: 'Failed to block user' });
-  }
-};
+ const handleBlock = () => {
+    blockUser(targetUserId); 
+    console.log("blockedd kelaa tine male ",targetUserId)
+    // 👈 You can call it just like this
+  };
 
-const unblockUser = async (targetUserId) => {
-  const currentUserId = auth().currentUser.uid;
+  const handleUnblock = () => {
+    unblockUser(targetUserId); // 👈 Same here
+    console.log("unblockedd kelaa tine male ",targetUserId)
+ 
+  };
 
-  try {
-    await firestore()
-      .collection('users')
-      .doc(currentUserId)
-      .collection('blockedUsers')
-      .doc(targetUserId)
-      .delete();
+// const blockUser = async (targetUserId) => {
+//   const currentUserId = auth().currentUser.uid;
 
-    setIsBlocked(false); // 👈 update state
-    Toast.show({ type: 'success', text1: 'User Unblocked' });
-  } catch (err) {
-    console.error('Error unblocking user:', err);
-    Toast.show({ type: 'error', text1: 'Failed to unblock user' });
-  }
-};
+//   try {
+//     await firestore()
+//       .collection('users')
+//       .doc(currentUserId)
+//       .collection('blockedUsers')
+//       .doc(targetUserId)
+//       .set({ blockedAt: firestore.FieldValue.serverTimestamp() });
+//  setIsBlocked(true); // 👈 U
+//     Toast.show({ type: 'success', text1: 'User Blocked' });
+//   } catch (err) {
+//     console.error('Error blocking user:', err);
+//     Toast.show({ type: 'error', text1: 'Failed to block user' });
+//   }
+// };
+
+// const unblockUser = async (targetUserId) => {
+//   const currentUserId = auth().currentUser.uid;
+
+//   try {
+//     await firestore()
+//       .collection('users')
+//       .doc(currentUserId)
+//       .collection('blockedUsers')
+//       .doc(targetUserId)
+//       .delete();
+
+//     setIsBlocked(false); // 👈 update state
+//     Toast.show({ type: 'success', text1: 'User Unblocked' });
+//   } catch (err) {
+//     console.error('Error unblocking user:', err);
+//     Toast.show({ type: 'error', text1: 'Failed to unblock user' });
+//   }
+// };
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white',}}>
@@ -215,7 +229,7 @@ const unblockUser = async (targetUserId) => {
   </View>   
      ) : isBlocked ? (
         <View style={styles.unblockContainer}>
-          <TouchableOpacity style={styles.unblockButton} onPress={()=>unblockUser(targetUserId)}>
+          <TouchableOpacity style={styles.unblockButton} onPress={handleUnblock}>
             <Text style={styles.unblockText}>Unblock User</Text>
           </TouchableOpacity>
         </View>
@@ -245,7 +259,7 @@ const unblockUser = async (targetUserId) => {
               /* your action */ }}>
               <Text>View Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={() => { toggleModal(); blockUser(targetUserId)}}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => { toggleModal(); handleBlock()}}>
               <Text>Block</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={() => { toggleModal(); navigation.navigate('Profile') }}>

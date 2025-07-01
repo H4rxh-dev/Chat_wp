@@ -2,9 +2,13 @@ import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity } from 'rea
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
+import { useBlock } from '../Context/Blockcontext';
 
 const Userinfo = ({ route, navigation }) => {
+   const { blockUser, unblockUser ,isBlocked,setIsBlocked} = useBlock();
+
   const { user } = route.params || {
+   
     user: {
       name: 'John Doe',
       about: 'Hey there! I am using ChatApp.',
@@ -20,8 +24,17 @@ const Userinfo = ({ route, navigation }) => {
   position: 'top', // or 'bottom'
 });
 
-
+console.log("routessssssssss",route.params)
   }
+
+const toggleBlockStatus = () => {
+  if (isBlocked) {
+    unblockUser(user.id);
+  } else {
+    blockUser(user.id);
+  }
+};
+
 
   return (
     <ScrollView style={styles.container}>
@@ -74,9 +87,17 @@ const Userinfo = ({ route, navigation }) => {
       </View>
 
       <View style={styles.section}>
-        <TouchableOpacity onPress={showtoast} style={styles.dangerButton}>
-          <Ionicons name="close-circle-outline" size={22} color="#f44336" />
-          <Text style={styles.dangerText}>Block</Text>
+        <TouchableOpacity onPress={toggleBlockStatus} style={styles.dangerButton}>
+          <Ionicons name="close-circle-outline" size={22} color={isBlocked ? '#4CAF50' : '#f44336'}/>
+          <Text
+  style={[
+    styles.dangerText,
+    { color: isBlocked ? '#4CAF50' : '#f44336' }
+  ]}
+>
+  {isBlocked ? "Unblock" : "Block"}
+</Text>
+
         </TouchableOpacity>
 
         <TouchableOpacity onPress={showtoast} style={styles.dangerButton}>
