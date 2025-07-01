@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "358663077318",
+    "project_id": "rnchat-6dbff",
+    "storage_bucket": "rnchat-6dbff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358663077318:android:f7096abc6a2066943206c7",
+        "android_client_info": {
+          "package_name": "com.chatss"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4onQlOeSnxBuUy6aJ9oVBYDGHaH_gvnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
