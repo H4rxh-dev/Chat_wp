@@ -1,15 +1,17 @@
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { useFocusEffect } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { Themecontext } from '../Context/Themecontext';
 
 const Blockeduser = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [blockuser, setblockuser] = useState([]);
+  const { isDark } = useContext(Themecontext);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -23,13 +25,12 @@ const Blockeduser = ({ navigation }) => {
             .doc(currentUserId)
             .collection('blockedUsers')
             .get();
-console.log("blockdoc",blockDoc)
+
           const users = blockDoc.docs.map(doc => ({
             id: doc.id,
-            name: doc.id, // Replace with actual name if stored in document
+            name: doc.id, // Replace with actual name if stored
           }));
 
-          console.log('✅ Blocked Users:', users);
           setblockuser(users);
         } catch (err) {
           console.error('Error fetching blocked users:', err);
@@ -40,16 +41,14 @@ console.log("blockdoc",blockDoc)
     }, [])
   );
 
-  console.log('blockdeuser',blockuser)
-
   const renderUser = ({ item }) => (
-    <View style={styles.userItem}>
+    <View style={[styles.userItem, { backgroundColor: isDark ? '#1a1a1a' : '#fff' }]}>
       <View style={styles.avatar}>
         <Icon name="person" size={scale(24)} color="#fff" />
       </View>
       <View style={styles.userInfo}>
-        <Text style={styles.userName}>{item.name}</Text>
-        <Text style={styles.userMessage}>Blocked</Text>
+        <Text style={[styles.userName, { color: isDark ? '#fff' : '#222' }]}>{item.name}</Text>
+        <Text style={[styles.userMessage, { color: isDark ? '#ccc' : '#777' }]}>Blocked</Text>
       </View>
       <TouchableOpacity>
         <Icon name="block" size={scale(20)} color="#ff4d4d" />
@@ -58,13 +57,13 @@ console.log("blockdoc",blockDoc)
   );
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000' : '#ffffff', paddingTop: insets.top }]}>
+      <View style={[styles.header, { backgroundColor: isDark ? '#121212' : '#f0f4f8', borderBottomColor: isDark ? '#333' : '#ddd' }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back-ios" size={moderateScale(20)} color="#333" />
+          <Icon name="arrow-back-ios" size={moderateScale(20)} color={isDark ? '#fff' : '#333'} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Blocked Users</Text>
-        <Text style={styles.countText}>Total: {blockuser.length}</Text>
+        <Text style={[styles.headerText, { color: isDark ? '#fff' : '#333' }]}>Blocked Users</Text>
+        <Text style={[styles.countText, { color: isDark ? '#aaa' : '#666' }]}>Total: {blockuser.length}</Text>
       </View>
 
       <FlatList
@@ -72,9 +71,11 @@ console.log("blockdoc",blockDoc)
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={renderUser}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={() => <View style={[styles.separator, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>You haven't blocked anyone yet.</Text>
+          <Text style={[styles.emptyText, { color: isDark ? '#777' : '#aaa' }]}>
+            You haven't blocked anyone yet.
+          </Text>
         }
       />
     </SafeAreaView>
@@ -86,7 +87,6 @@ export default Blockeduser;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
@@ -94,20 +94,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: verticalScale(15),
     paddingHorizontal: scale(20),
-    backgroundColor: '#f0f4f8',
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
   },
   headerText: {
     flex: 1,
     textAlign: 'center',
     fontSize: moderateScale(20),
     fontWeight: 'bold',
-    color: '#333',
   },
   countText: {
     fontSize: moderateScale(16),
-    color: '#666',
   },
   listContent: {
     paddingVertical: verticalScale(10),
@@ -117,7 +113,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: verticalScale(12),
     paddingHorizontal: scale(20),
-    backgroundColor: '#fff',
   },
   avatar: {
     width: scale(44),
@@ -135,22 +130,18 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: moderateScale(16),
     fontWeight: 'bold',
-    color: '#222',
   },
   userMessage: {
     fontSize: moderateScale(14),
-    color: '#777',
     marginTop: verticalScale(2),
   },
   separator: {
     height: 1,
-    backgroundColor: '#e0e0e0',
     marginLeft: scale(76),
   },
   emptyText: {
     textAlign: 'center',
     fontSize: moderateScale(14),
-    color: '#aaa',
     marginTop: verticalScale(40),
   },
   backButton: {

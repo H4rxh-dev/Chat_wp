@@ -10,6 +10,7 @@ import {
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getAuth } from '@react-native-firebase/auth';
+import { moderateScale, scale, verticalScale } from 'react-native-size-matters';
 
 const Login = ({navigation}) => {
 
@@ -91,52 +92,52 @@ const loginWithEmail = async () => {
 export default Login;
 
 const styles = StyleSheet.create({
-  container: {
+ container: {
     flex: 1,
-    padding: 28,
+    padding: scale(28),
     backgroundColor: 'white',
   },
   title: {
     textAlign: 'center',
-    marginTop: 90,
-    fontSize: 36,
+    marginTop: verticalScale(90),
+    fontSize: moderateScale(36),
     fontWeight: '700',
     color: 'blue',
   },
   subtitle: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: 'gray',
-    marginTop: 15,
+    marginTop: verticalScale(15),
   },
   inputWrapper: {
-    paddingHorizontal: 10,
-    paddingVertical: 22,
-    gap: 20,
-    marginTop: 20,
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(22),
+    marginTop: verticalScale(20),
+    gap: verticalScale(20), // Only works RN 0.71+, else use marginBottom on children
     alignItems: 'center',
   },
   input: {
     borderColor: 'black',
-    borderRadius: 10,
+    borderRadius: moderateScale(10),
     borderWidth: 0.5,
-    height: 60,
+    height: verticalScale(55),
     width: '95%',
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20),
     color: 'black',
   },
   button: {
     backgroundColor: '#3f93e8',
-    padding: 13,
-    borderRadius: 10,
-    height: 60,
+    padding: scale(13),
+    borderRadius: moderateScale(10),
+    height: verticalScale(60),
     width: '95%',
     justifyContent: 'center',
   },
   buttonText: {
     color: 'white',
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: moderateScale(16),
     fontWeight: '600',
   },
 });

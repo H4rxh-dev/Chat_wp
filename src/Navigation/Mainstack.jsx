@@ -7,6 +7,7 @@ import Chatscreen from '../Screen/Chatscreen';
 import Userinfo from '../Screen/Userinfo';
 import Chatbot from '../Screen/Chatbot';
 import Blockeduser from '../Screen/Blockeduser';
+import Smslog from '../Screen/Smslog';
 
 const Mainstack = () => {
     const Stack = createNativeStackNavigator();
@@ -14,7 +15,7 @@ const Mainstack = () => {
   return (
        <Stack.Navigator   screenOptions={{
     headerShown: false,
-    animation: "slide_from_right", // or 'fade', 'slide_from_left', 'slide_from_bottom', 'none'
+    animation: "slide_from_right", 
   }}
 >
       <Stack.Screen name="User" component={User} />
@@ -23,9 +24,7 @@ const Mainstack = () => {
       <Stack.Screen name="Userinfo" component={Userinfo} />
       <Stack.Screen name="Chatbot" component={Chatbot} />
       <Stack.Screen name="Blockeduser" component={Blockeduser} />
-
-
-
+      <Stack.Screen name="Smslog" component={Smslog} />
 
     </Stack.Navigator>
 

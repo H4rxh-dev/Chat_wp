@@ -1,7 +1,7 @@
 
 import { getAuth } from '@react-native-firebase/auth';
 import { getFirestore } from '@react-native-firebase/firestore';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,38 +11,61 @@ import {
   SafeAreaView,
   Image,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Themecontext } from '../Context/Themecontext';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 
 const User = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+ const { isDark } = useContext(Themecontext);
 
 
 const [users, setUsers] = useState([]);
  const [visible, setVisible] = useState(false);
+ const [loading, setLoading] = useState(true);
+
+
+
+  const goToProfile = () => {
+    navigation.navigate('Profile');
+  };
+
+  const swipe = Gesture.Pan()
+    .onEnd((e) => {
+      if (e.translationX < -50) {
+        runOnJS(goToProfile)();
+      }
+    });
+
+
+
+
 
   const toggleModal = () => setVisible(!visible);
 useEffect(() => {
   const fetchUsers = async () => {
     try {
+      setLoading(true); // 👈 Start loading
       const currentUserUid = getAuth().currentUser.uid;
 
       const snapshot = await getFirestore().collection('users').get();
-console.log('====================================');
-console.log("usersss=>",snapshot);
-console.log('====================================');
       const userList = snapshot.docs
         .map(doc => ({
-          id: doc.id, // 🔑 Store doc ID
+          id: doc.id,
           ...doc.data(),
         }))
-        .filter(user => user.id !== currentUserUid); // ❌ Exclude current user
+        .filter(user => user.id !== currentUserUid);
 
       setUsers(userList);
     } catch (error) {
       console.error('🔥 Error fetching users:', error);
+    } finally {
+      setLoading(false); // 👈 Done loading
     }
   };
 
@@ -51,39 +74,52 @@ console.log('====================================');
 
 console.log("user============>",users)
 const renderUserItem = ({ item }) => (
-  <View style={styles.userItem}>
-    <TouchableOpacity onPress={() => navigation.navigate('Profile', { user: item })}>
-      <Image source={{ uri: item.image }} style={styles.avatar} />
-    </TouchableOpacity>
+ <View style={[styles.userItem, { backgroundColor: isDark ? '#1c1c1e' : '#fff' }]}>
+      <TouchableOpacity onPress={() => navigation.navigate('Profile', { user: item })}>
+        <Image source={{ uri: item.image }} style={styles.avatar} />
+      </TouchableOpacity>
 
-    <TouchableOpacity
-      style={styles.userInfo}
-      onPress={() => navigation.navigate('Chatscreen', { user: item })}
-    >
-      <Text style={styles.userName}>{item.name}</Text>
-      <Text style={styles.userMessage} numberOfLines={1}>
-        {item.message}
-      </Text>
-    </TouchableOpacity>
-  </View>
-);
+      <TouchableOpacity
+        style={styles.userInfo}
+        onPress={() => navigation.navigate('Chatscreen', { user: item })}
+      >
+        <Text style={[styles.userName, { color: isDark ? '#fff' : '#222' }]}>{item.name}</Text>
+        <Text style={[styles.userMessage, { color: isDark ? '#aaa' : '#555' }]} numberOfLines={1}>
+          {item.message}
+        </Text>
+      </TouchableOpacity>
+    </View>);
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Chats</Text>
+    <GestureDetector gesture={swipe}>
+
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top ,paddingBottom:insets.bottom,
+          backgroundColor: isDark ? '#000' : '#ffffff',
+    } ]}>
+      <View style={[styles.header, {
+          backgroundColor: isDark ? '#1c1c1e' : '#f5f7fa',
+             borderBottomColor: isDark ? 'grey' : '#ddd',
+      }]}>
+        <Text style={[styles.headerText, { color: isDark ? '#fff' : '#333' }]}>Chats</Text>
       <TouchableOpacity onPress={toggleModal} style={styles.dotIcon}>
-        <Icon name="more-vert" size={24} color="black" />
+        <Icon name="more-vert" size={24} color={isDark ? '#fff' : '#000'} />
       </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item.id}
-        renderItem={renderUserItem}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+{loading ? (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <ActivityIndicator size="large" color="#4da6ff" />
+    <Text style={{ marginTop: 10, color: isDark ? '#ccc' : '#666' }}>Loading users...</Text>
+  </View>
+) : (
+  <FlatList
+    data={users}
+    keyExtractor={(item) => item.id}
+    renderItem={renderUserItem}
+    contentContainerStyle={styles.listContent}
+    ItemSeparatorComponent={() => <View style={styles.separator} />}
+  />
+)}
 <Modal transparent visible={visible} animationType="fade" onRequestClose={toggleModal}>
   <TouchableOpacity
     style={styles.modalBackground}
@@ -97,9 +133,11 @@ const renderUserItem = ({ item }) => (
           /* your action */ }}>
           <Text>Chat With AI</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={() => { toggleModal(); /* your action */ }}>
-          <Text>Users</Text>
-        </TouchableOpacity>
+        {/* <TouchableOpacity style={styles.menuItem} onPress={() => { toggleModal(); }}>
+          <Text>User Friend</Text>
+        </TouchableOpacity> */}
+
+
         <TouchableOpacity style={styles.menuItem} onPress={() => { toggleModal(); navigation.navigate('Profile') }}>
           <Text>Profile</Text>
         </TouchableOpacity>
@@ -110,6 +148,8 @@ const renderUserItem = ({ item }) => (
 
       
     </SafeAreaView>
+    </GestureDetector>
+
   );
 };
 
